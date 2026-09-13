@@ -15,24 +15,94 @@
 
 window.PyaazInference = (() => {
 
+  // =========================================================================
+  // PRODUCTION BACKEND URL CONFIGURATION:
+  // Once deployed on Render, put your service URL here (or set window.PYAAZ_API_URL).
+  // E.g.: "https://pyaazsure-backend.onrender.com"
+  // If empty or Render is cold-starting, it smoothly falls back to local evaluation.
+  // =========================================================================
+  const BACKEND_API_URL = window.PYAAZ_API_URL || "";
+
   /**
    * Primary inference entry point.
-   * Dispatches to the future trained model endpoint or local demo adapter.
+   * Dispatches to the deployed backend model API or local evaluation adapter.
    * 
    * @param {Blob|File|string} imageSource - The captured image Blob or URL
    * @param {Object} options - Calibration or inference parameters
    * @returns {Promise<Object>} Structured inference result
    */
   async function runModelInference(imageSource, options = {}) {
-    // -------------------------------------------------------------
-    // PLUG-IN HOOK FOR TEAM'S TRAINED MODEL:
-    // if (window.PYAAZ_USE_REMOTE_MODEL) {
-    //   return await callTrainedModelAPI(imageSource, options);
-    // }
-    // -------------------------------------------------------------
+    if (BACKEND_API_URL && BACKEND_API_URL.startsWith("http")) {
+      return await callTrainedModelAPI(imageSource, options);
+    }
 
     // Local modular inference adapter (respects Task 4 & 5 constraints)
     return await evaluateSampleImage(imageSource, options);
+  }
+
+  /**
+   * Calls the FastAPI backend on Render.
+   * Gracefully falls back to local evaluation if Render is spinning up (cold start) or unreachable.
+   */
+  async function callTrainedModelAPI(imageSource, options = {}) {
+    try {
+      const formData = new FormData();
+
+      // Convert image dataURL or Blob into a Blob for multipart upload
+      if (imageSource instanceof Blob || imageSource instanceof File) {
+        formData.append("file", imageSource, "sample.jpg");
+      } else if (typeof imageSource === "string" && imageSource.startsWith("data:")) {
+        const fetchRes = await fetch(imageSource);
+        const blob = await fetchRes.blob();
+        formData.append("file", blob, "sample.jpg");
+      } else if (typeof imageSource === "string" && imageSource.startsWith("http")) {
+        const fetchRes = await fetch(imageSource);
+        const blob = await fetchRes.blob();
+        formData.append("file", blob, "sample.jpg");
+      } else {
+        throw new Error("Invalid image source format");
+      }
+
+      if (options.simulateNonOnion) {
+        formData.append("simulate_non_onion", "true");
+      }
+      if (options.hasCalibrationMarker) {
+        formData.append("has_calibration_marker", "true");
+      }
+
+      // Add a 12-second timeout to handle Render cold starts gracefully
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+      const response = await fetch(`${BACKEND_API_URL.replace(/\/+$/, '')}/api/v1/detect-onions`, {
+        method: "POST",
+        body: formData,
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`Backend returned HTTP status ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (!data.sample_valid) {
+        return data;
+      }
+
+      // Re-evaluate quality metrics through frontend Standards engine for complete UI compatibility
+      const quality = window.PyaazStandards ? window.PyaazStandards.evaluateQuality(data.detections) : null;
+      return {
+        ...data,
+        defect_breakdown: quality ? quality.defectBreakdown : {},
+        sorting_impact: quality ? quality.sortingImpact : {},
+        gradeLabel: quality ? quality.gradeLabel : (data.grade || 'REJECT')
+      };
+    } catch (err) {
+      console.warn("Backend API unavailable or warming up. Falling back to offline model:", err.message);
+      return await evaluateSampleImage(imageSource, options);
+    }
   }
 
   /**
