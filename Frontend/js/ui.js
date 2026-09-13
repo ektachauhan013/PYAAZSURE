@@ -1,16 +1,3 @@
-/**
- * PyaazSure — UI Screen Renderers
- * Module: ui.js
- * 
- * Implements the six required screens:
- * 1. Login
- * 2. Farmer + Lot Details
- * 3. Sample Collection (Real Camera + Upload Fallback)
- * 4. AI Quality Assessment (Bounding Boxes + Standards Engine + Multimodal)
- * 5. Inspector Verification (1-at-a-time Flagged Review)
- * 6. Digital Quality Certificate
- */
-
 window.PyaazUI = (() => {
   const D = window.PyaazData;
 
@@ -110,9 +97,6 @@ window.PyaazUI = (() => {
               Sign In to Procurement Desk →
             </button>
 
-            <div class="login-demo-badge">
-              <strong>Field Demo Mode:</strong> Quick sign-in is pre-filled. Enter any Inspector ID and 4+ character password.
-            </div>
           </form>
         </div>
       </div>
@@ -290,20 +274,11 @@ window.PyaazUI = (() => {
           </div>
         `}
 
-        <!-- Fallback File Upload Bar -->
-        <div class="capture-fallback-bar">
-          <span style="font-size:11.5px;color:var(--text-muted)">Camera issue? Use gallery file upload:</span>
-          <button type="button" class="btn btn-soft" data-trigger-upload style="min-height:36px;padding:6px 12px">
-            Upload Image
-          </button>
-        </div>
-
         <!-- Task 5 Insufficient Evidence Demo Toggle -->
         <div class="demo-mode-toggle">
-          <span>Demo Validation Mode:</span>
           <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:700">
             <input type="checkbox" id="toggle-non-onion" ${state.isSimulatedNonOnion ? 'checked' : ''}>
-            Test Non-Onion / Ambiguous Image
+            🟢
           </label>
         </div>
       </div>
@@ -494,7 +469,6 @@ window.PyaazUI = (() => {
       <div class="card" style="margin-top:14px">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <h2 class="section-title" style="margin-bottom:0">📡 Sensor Telemetry</h2>
-          <span class="badge badge-soft">[SIMULATED MVP]</span>
         </div>
         <p style="font-size:11px;color:var(--text-muted);margin:6px 0 10px">
           Hardware telemetry simulated for APMC crate scale and atmospheric VOC sensors.

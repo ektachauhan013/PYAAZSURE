@@ -1,15 +1,3 @@
-"""
-PyaazSure — Backend Inference Service Contract (FastAPI)
-File: Backend/inference_service.py
-
-This module provides the exact contract and endpoint specification for the team's
-upcoming trained computer-vision model and sensor ML model.
-
-Run:
-    pip install fastapi uvicorn python-multipart
-    uvicorn inference_service:app --reload --port 8000
-"""
-
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -116,14 +104,14 @@ async def detect_onions(
             note=None if has_calibration_marker else "Size unavailable — calibration marker not detected."
         ),
         detections=[
-            DetectionItem(onion_ref="O1", bbox=[18, 16, 20, 22], classification="healthy", confidence=0.96),
-            DetectionItem(onion_ref="O2", bbox=[42, 14, 21, 23], classification="healthy", confidence=0.93),
-            DetectionItem(onion_ref="O3", bbox=[66, 18, 20, 22], classification="healthy", confidence=0.95),
-            DetectionItem(onion_ref="O4", bbox=[14, 44, 22, 24], classification="damaged", confidence=0.78, evidence="Dark damaged patch visible on lower surface."),
-            DetectionItem(onion_ref="O5", bbox=[39, 42, 22, 24], classification="healthy", confidence=0.91),
-            DetectionItem(onion_ref="O6", bbox=[64, 46, 22, 25], classification="rotten", confidence=0.84, evidence="Visible fungal softening and dark decay around neck."),
-            DetectionItem(onion_ref="O7", bbox=[24, 70, 20, 22], classification="sprouted", confidence=0.88, evidence="Visible green shoot emergence at apical bud."),
-            DetectionItem(onion_ref="O8", bbox=[52, 70, 21, 23], classification="healthy", confidence=0.89)
+            DetectionItem(onion_ref="O1", bbox=[18, 16, 20, 22], classification="healthy", confidence=0.93),
+            DetectionItem(onion_ref="O2", bbox=[42, 14, 21, 23], classification="healthy", confidence=0.90),
+            DetectionItem(onion_ref="O3", bbox=[66, 18, 20, 22], classification="healthy", confidence=0.90),
+            DetectionItem(onion_ref="O4", bbox=[14, 44, 22, 24], classification="damaged", confidence=0.91, evidence="Deep vertical skin crack along the side of the outer layer."),
+            DetectionItem(onion_ref="O5", bbox=[39, 42, 22, 24], classification="healthy", confidence=0.88),
+            DetectionItem(onion_ref="O6", bbox=[64, 46, 22, 25], classification="rotten", confidence=0.78, evidence="Darkened, fibrous rot and mold growth around the root base."),
+            DetectionItem(onion_ref="O7", bbox=[24, 70, 20, 22], classification="sprouted", confidence=0.69, evidence="Visible shoot emergence and dried stem extending from top neck."),
+            DetectionItem(onion_ref="O8", bbox=[52, 70, 21, 23], classification="discolored", confidence=0.81)
         ],
         timestamp=str(time.time())
     )
