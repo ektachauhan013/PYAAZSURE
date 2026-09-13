@@ -15,13 +15,8 @@
 
 window.PyaazInference = (() => {
 
-  // =========================================================================
-  // PRODUCTION BACKEND URL CONFIGURATION:
-  // Once deployed on Render, put your service URL here (or set window.PYAAZ_API_URL).
-  // E.g.: "https://pyaazsure-backend.onrender.com"
-  // If empty or Render is cold-starting, it smoothly falls back to local evaluation.
-  // =========================================================================
-  const BACKEND_API_URL = window.PYAAZ_API_URL || "";
+  // Set to live Render backend URL
+  const BACKEND_API_URL = window.PYAAZ_API_URL || "https://pyaazsure-backedn.onrender.com";
 
   /**
    * Primary inference entry point.
